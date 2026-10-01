@@ -1,6 +1,6 @@
 # VIATICA
 
-**Team OggyAndTheCockroaches **
+Team OggyAndTheCockroaches
 Theme: Tourism · Category: Software
 Prototype developer: **Ishita Choudhary**
 
