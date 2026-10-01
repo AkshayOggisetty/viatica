@@ -1,6 +1,6 @@
-# VIATICA — prototype
+# VIATICA
 
-**Team S2P10 · OggyAndTheCockroaches · PS ID IHSIH019 · YUKTI IR2026-1042884**
+**Team OggyAndTheCockroaches **
 Theme: Tourism · Category: Software
 Prototype developer: **Ishita Choudhary**
 
