@@ -1,0 +1,304 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   VIATICA — design tokens and primitives.
+   An aged-ivory atlas: parchment ground, iron-gall ink, brass and terracotta.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Ground — the page sits a shade below the cards so panels lift off it
+     under projector light instead of dissolving into it. */
+  --paper:        #e9dcc0;
+  --paper-2:      #f0e6d2;
+  --paper-3:      #ddcdaa;
+  --paper-sunk:   #d3bf98;
+  --vellum:       #fbf5e9;
+
+  /* Ink — deepened one step across the board. Contrast here comes from
+     value, never from saturation; this must still read as iron-gall ink. */
+  --ink:          #1e1610;
+  --ink-2:        #372a1f;
+  --ink-3:        #5a4b3a;
+  --ink-4:        #7c6a53;
+  --hair:         #b09877;
+  --hair-2:       #c6b08c;
+
+  /* Pigments */
+  --terracotta:   #a84f32;
+  --terracotta-2: #c46844;
+  --indigo:       #253352;
+  --indigo-2:     #3f5175;
+  --brass:        #a77d3f;
+  --brass-2:      #c39c50;
+  --forest:       #2a5546;
+  --forest-2:     #437464;
+  --madder:       #8c2f2f;
+  --water:        #5e8990;
+  --water-2:      #8fb0b6;
+
+  /* ── The atlas plate ────────────────────────────────────────────────────
+     Every colour the map draws with lives here, so a contrast pass is one
+     edit rather than thirty. Calibrated for a projector in a lit room:
+     sage sea → parchment land → sepia borders → ink geography → terracotta
+     journey, each a clear value step from the one before. */
+  --map-sea:         #d5ddd7;
+  --map-sea-2:       #c2cdc6;   /* coastal halo bands */
+  --map-land:        #e8d6ad;
+  --map-land-hi:     #f2e6c6;   /* hover */
+  --map-land-sel:    #e2cd9d;   /* selected — deeper, never brighter */
+  --map-border:      #74624a;
+  --map-border-str:  #8a4028;   /* selected outline, a restrained terracotta */
+  --map-geo:         #554b3f;   /* major geographic labels */
+  --map-geo-sea:     #3f6068;   /* labels floating on water */
+  --map-river:       #5e8990;
+  --map-river-lit:   #a8ccd0;   /* the shimmer that runs along a river */
+  --map-topo:        #8c7859;
+  --map-topo-2:      #6f5d43;
+  --map-marker-ink:  #3a2e20;
+  --map-marker-fill: #f7eed6;
+  --map-label-bg:    rgba(244,234,209,.94);
+
+  /* The traveller's route — the strongest mark on the sheet after India. */
+  --route:      #a84f32;
+  --route-deep: #7d3620;
+  --route-halo: rgba(247,238,214,.72);
+
+  /* Semantic */
+  --ok:      var(--forest);
+  --warn:    #96631a;
+  --danger:  var(--madder);
+
+  /* Type */
+  --display: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua',
+             'Hoefler Text', Georgia, 'Times New Roman', serif;
+  --ui: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Inter,
+        system-ui, 'Helvetica Neue', Arial, sans-serif;
+  --mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+  --indic: 'Noto Sans Devanagari', 'Noto Sans Kannada', 'Noto Sans Tamil',
+           'Nirmala UI', 'Kohinoor Devanagari', 'Tamil Sangam MN',
+           'Kannada MN', 'Malayalam MN', 'Bangla MN', 'Gurmukhi MN', sans-serif;
+
+  /* Metrics */
+  --rail: 78px;
+  /* How far the country-level sheet sits left of centre, leaving open sea
+     under the tool panels. A projector is wider than a laptop, so the sheet
+     recentres there rather than stranding India on the left. */
+  --sheet-shift: -150px;
+  --r-sm: 3px;
+  --r-md: 5px;
+  --arch: 46% 46% 5px 5px / 26% 26% 5px 5px;
+
+  --shadow-1: 0 1px 2px rgba(60,40,20,.10), 0 3px 10px -4px rgba(60,40,20,.16);
+  --shadow-2: 0 2px 5px rgba(60,40,20,.12), 0 14px 34px -12px rgba(60,40,20,.30);
+  --shadow-3: 0 3px 8px rgba(60,40,20,.14), 0 34px 70px -22px rgba(60,40,20,.42);
+
+  --ease: cubic-bezier(.22,.61,.36,1);
+  --slow: 620ms;
+  --med:  340ms;
+  --fast: 180ms;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--ui);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow: hidden;
+}
+
+/* Paper grain over the whole shell — very slight, never noisy. */
+body::after {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+  opacity: .26; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='4'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.30'/%3E%3C/svg%3E");
+}
+
+::selection { background: rgba(155,69,38,.20); }
+
+/* ── Typography ───────────────────────────────────────────────────────── */
+h1,h2,h3,h4 { font-family: var(--display); font-weight: 600; margin: 0; letter-spacing: .002em; }
+h1 { font-size: 30px; line-height: 1.14; }
+h2 { font-size: 21px; line-height: 1.2; }
+h3 { font-size: 16px; line-height: 1.3; }
+
+.eyebrow {
+  font-family: var(--ui); font-size: 9.5px; font-weight: 620;
+  letter-spacing: .19em; text-transform: uppercase; color: var(--ink-4);
+}
+.script { font-family: var(--indic); color: var(--ink-3); font-size: 13px; line-height: 1.25; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.muted { color: var(--ink-3); }
+.faint { color: var(--ink-3); }
+.small { font-size: 12px; }
+.tiny  { font-size: 11.5px; }
+
+/* Small-caps label, the atlas's workhorse */
+.label {
+  font-size: 10px; font-weight: 660; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+
+/* ── Rules & ornaments ────────────────────────────────────────────────── */
+.rule { height: 1px; background: var(--hair); border: 0; margin: 14px 0; }
+.rule-orn {
+  display: flex; align-items: center; gap: 9px; margin: 16px 0;
+  color: var(--hair); font-size: 9px;
+}
+.rule-orn::before, .rule-orn::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--hair) 18%, var(--hair) 82%, transparent);
+}
+.rule-orn i { font-style: normal; color: var(--brass); letter-spacing: .3em; }
+
+/* ── Surfaces ─────────────────────────────────────────────────────────── */
+.card {
+  background: linear-gradient(178deg, #fffbf2, var(--paper-2));
+  border: 1px solid var(--hair);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-1);
+  position: relative;
+}
+/* the thin inner keyline that reads as "printed plate" */
+.card::before {
+  content: ''; position: absolute; inset: 3px; pointer-events: none;
+  border: 1px solid rgba(176,152,119,.5); border-radius: 2px;
+}
+.card > * { position: relative; }
+
+.card-arch { border-radius: var(--arch); }
+.card-arch::before { border-radius: var(--arch); inset: 4px; }
+
+.panel {
+  background: linear-gradient(180deg, rgba(251,245,233,.94), rgba(236,224,200,.94));
+  border: 1px solid var(--hair);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-2);
+  backdrop-filter: blur(3px) saturate(1.06);
+}
+
+.sunk {
+  background: var(--paper-sunk);
+  border: 1px solid var(--hair);
+  border-radius: var(--r-sm);
+  box-shadow: inset 0 1px 3px rgba(90,66,36,.16);
+}
+
+/* ── Controls ─────────────────────────────────────────────────────────── */
+.btn {
+  font: inherit; font-size: 12px; font-weight: 560; letter-spacing: .05em;
+  padding: 8px 15px; border-radius: var(--r-sm); cursor: pointer;
+  border: 1px solid var(--ink-2); color: var(--ink);
+  background: linear-gradient(180deg, var(--vellum), var(--paper-2));
+  transition: all var(--fast) var(--ease);
+  display: inline-flex; align-items: center; gap: 7px; white-space: nowrap;
+  box-shadow: 0 1px 0 rgba(255,255,255,.6) inset, var(--shadow-1);
+}
+.btn:hover { background: linear-gradient(180deg, #fff, var(--paper)); transform: translateY(-1px); box-shadow: var(--shadow-2); }
+.btn:active { transform: translateY(0); }
+.btn:disabled { opacity: .42; cursor: not-allowed; transform: none; }
+
+.btn-primary {
+  background: linear-gradient(180deg, var(--terracotta-2), var(--terracotta));
+  border-color: #7d351b; color: #fdf3e6;
+  text-shadow: 0 1px 0 rgba(0,0,0,.22);
+}
+.btn-primary:hover { background: linear-gradient(180deg, #cf7549, var(--terracotta-2)); }
+
+.btn-ink { background: linear-gradient(180deg, #3d2f23, #251b13); border-color: #16100b; color: var(--paper); }
+.btn-ink:hover { background: linear-gradient(180deg, #4c3b2c, #2f231a); }
+
+.btn-danger { background: linear-gradient(180deg, #a63a3a, var(--madder)); border-color: #6d2020; color: #fdeee9; }
+
+.btn-ghost { background: transparent; border-color: var(--hair); box-shadow: none; color: var(--ink-2); }
+.btn-ghost:hover { background: rgba(255,255,255,.5); border-color: var(--ink-4); }
+
+.btn-sm { padding: 5px 10px; font-size: 11px; }
+.btn-xs { padding: 3px 8px; font-size: 10px; letter-spacing: .06em; }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 540; letter-spacing: .04em;
+  padding: 5px 11px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--hair); color: var(--ink-2);
+  background: rgba(255,255,255,.42);
+  transition: all var(--fast) var(--ease);
+}
+.chip:hover { border-color: var(--ink-4); background: rgba(255,255,255,.78); }
+.chip[aria-pressed="true"] {
+  background: linear-gradient(180deg, #3d2f23, #251b13);
+  border-color: #16100b; color: var(--paper);
+}
+
+.tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 9.5px; font-weight: 640; letter-spacing: .13em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 2px;
+  border: 1px solid currentColor; color: var(--ink-3); opacity: .95;
+}
+.tag-ok       { color: var(--forest); }
+.tag-warn     { color: var(--warn); }
+.tag-danger   { color: var(--madder); }
+.tag-brass    { color: var(--brass); }
+.tag-indigo   { color: var(--indigo); }
+.tag-solid    { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+input[type=text], input[type=number], select, textarea {
+  font: inherit; font-size: 13px; color: var(--ink);
+  background: var(--vellum); border: 1px solid var(--hair);
+  border-radius: var(--r-sm); padding: 8px 11px; width: 100%;
+  transition: border-color var(--fast), box-shadow var(--fast);
+}
+input:focus, select:focus, textarea:focus {
+  outline: none; border-color: var(--brass);
+  box-shadow: 0 0 0 3px rgba(164,128,43,.16);
+}
+
+input[type=checkbox], input[type=radio] { accent-color: var(--terracotta); width: auto; }
+
+input[type=range] { -webkit-appearance: none; width: 100%; height: 22px; background: transparent; }
+input[type=range]::-webkit-slider-runnable-track {
+  height: 3px; background: var(--hair); border-radius: 2px;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 15px; height: 15px; margin-top: -6px;
+  border-radius: 50%; background: linear-gradient(180deg, var(--brass-2), var(--brass));
+  border: 1px solid #7d611f; box-shadow: var(--shadow-1); cursor: grab;
+}
+
+/* ── Meters ───────────────────────────────────────────────────────────── */
+.meter { height: 6px; border-radius: 3px; background: var(--paper-sunk);
+         box-shadow: inset 0 1px 2px rgba(90,66,36,.2); overflow: hidden; }
+.meter > i { display: block; height: 100%; border-radius: 3px;
+             background: linear-gradient(90deg, var(--forest-2), var(--forest));
+             transition: width var(--slow) var(--ease); }
+.meter.warn > i  { background: linear-gradient(90deg, #c79a3c, var(--warn)); }
+.meter.over > i  { background: linear-gradient(90deg, #b05252, var(--madder)); }
+
+/* ── Motion ───────────────────────────────────────────────────────────── */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.fade-up { animation: fadeUp var(--med) var(--ease) both; }
+.fade-in { animation: fadeIn var(--med) var(--ease) both; }
+
+@media (min-aspect-ratio: 3/2)  { :root { --sheet-shift: -84px; } }
+@media (min-aspect-ratio: 17/9) { :root { --sheet-shift: -60px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* ── Scrollbars ───────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--hair); border-radius: 5px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-4); background-clip: content-box; }
+
+.scroll { overflow-y: auto; overscroll-behavior: contain; }

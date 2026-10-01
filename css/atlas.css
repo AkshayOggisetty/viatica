@@ -1,0 +1,295 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   The atlas plate. Everything here serves one illusion: an illustrated
+   Indian map that happens to be interactive.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.atlas {
+  position: relative; width: 100%; height: 100%;
+  background:
+    radial-gradient(120% 90% at 50% 12%, #dfe6e0 0%, var(--map-sea) 45%, #c9d3cc 100%);
+  overflow: hidden;
+}
+
+/* Decorative plate border, as on an engraved map sheet */
+.atlas-frame {
+  position: absolute; inset: 14px; pointer-events: none; z-index: 5;
+  border: 1px solid var(--hair);
+  box-shadow: inset 0 0 0 4px rgba(242,231,211,.7), inset 0 0 0 5px rgba(198,179,147,.55);
+}
+.atlas-frame::before {
+  content: ''; position: absolute; inset: 9px; border: .5px solid rgba(164,128,43,.34);
+}
+.atlas-corner { position: absolute; width: 30px; height: 30px; color: var(--brass); opacity: .62; }
+.atlas-corner path { fill: none; stroke: currentColor; stroke-width: 1; }
+.atlas-corner.tl { top: -1px; left: -1px; }
+.atlas-corner.tr { top: -1px; right: -1px; transform: scaleX(-1); }
+.atlas-corner.bl { bottom: -1px; left: -1px; transform: scaleY(-1); }
+.atlas-corner.br { bottom: -1px; right: -1px; transform: scale(-1); }
+
+.atlas-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
+.atlas-svg:active { cursor: grabbing; }
+.atlas-vp {
+  transition: transform var(--slow) var(--ease);
+  /* Framing maths assumes the group's own origin, not its bounding-box centre. */
+  transform-origin: 0 0;
+  transform-box: view-box;
+}
+/* At country level the sheet sits left of centre, so the tool panels rest on
+   open sea rather than on land. India is never cropped. */
+.zoom-1 .atlas-vp { transform: translate(var(--sheet-shift), 0); }
+
+/* ── Sea & land ───────────────────────────────────────────────────────── */
+.sea-fill  { fill: var(--map-sea); }
+.sea-band  { fill: none; stroke: var(--map-sea-2); stroke-width: .7; opacity: .6; }
+/* Concentric bands off the coast — the engraver's way of saying "water".
+   Stronger now, so the silhouette of India separates at ten metres. */
+.coast-halo{ fill: none; stroke: #8fa8a4; stroke-width: 5; opacity: .46; }
+.coast-halo.h2 { stroke-width: 10; opacity: .26; }
+.coast-halo.h3 { stroke-width: 17; opacity: .14; }
+
+.land-mass { fill: var(--map-land); stroke: none; }
+.neighbour { fill: #d9d5c2; stroke: #a89c82; stroke-width: .6; opacity: .55; }
+.neighbour-label {
+  font-family: var(--ui); font-size: 8px; font-weight: 600; letter-spacing: .24em;
+  fill: var(--ink-3); opacity: .62; text-anchor: middle; text-transform: uppercase;
+}
+
+/* ── States ───────────────────────────────────────────────────────────── */
+.state { cursor: pointer; }
+.state-fill {
+  fill: var(--map-land); stroke: var(--map-border); stroke-width: 1.5;
+  stroke-linejoin: round; vector-effect: non-scaling-stroke;
+  transition: fill var(--med) var(--ease), stroke-width var(--med) var(--ease),
+              stroke var(--med) var(--ease);
+}
+.state:hover .state-fill { fill: var(--map-land-hi); stroke: var(--ink-2); stroke-width: 2.1; }
+/* Quieter, not erased. The fill recedes but the border keeps full strength,
+   so surrounding states stay readable as states. */
+.state.dim .state-fill   { fill: #ded3b7; stroke: #8a7862; }
+/* A finger placed on the atlas: the region deepens and takes a terracotta
+   outline, rather than glowing. */
+.state.active .state-fill{ fill: var(--map-land-sel); stroke: var(--map-border-str); stroke-width: 3.2; }
+
+/* Regional character — Hampi stone, Thar sand, Malabar green, Himalayan
+   slate. Each is a hue shift within a narrow value band, so the sheet still
+   reads as one atlas rather than seven themed pages. */
+.state[data-pal="stone"]  .state-fill { fill: #e8d6ad; }
+.state[data-pal="sand"]   .state-fill { fill: #ecd9a6; }
+.state[data-pal="green"]  .state-fill { fill: #dedcaf; }
+.state[data-pal="delta"]  .state-fill { fill: #e7d4ae; }
+.state[data-pal="alpine"] .state-fill { fill: #dfdcc6; }
+.state[data-pal="coast"]  .state-fill { fill: #e4dcb1; }
+.state[data-pal="desert"] .state-fill { fill: #eeda9e; }
+/* Selected: the same character, one value deeper. */
+.state.active[data-pal="stone"]  .state-fill { fill: #e0cb9c; }
+.state.active[data-pal="sand"]   .state-fill { fill: #e6cf94; }
+.state.active[data-pal="green"]  .state-fill { fill: #d5d29c; }
+.state.active[data-pal="delta"]  .state-fill { fill: #e0c99d; }
+.state.active[data-pal="alpine"] .state-fill { fill: #d5d2b5; }
+.state.active[data-pal="coast"]  .state-fill { fill: #dcd29e; }
+.state.active[data-pal="desert"] .state-fill { fill: #e8d08b; }
+
+.state-name {
+  font-family: var(--display); font-size: 9px; letter-spacing: .17em;
+  fill: var(--map-geo); text-anchor: middle; pointer-events: none;
+  text-transform: uppercase; opacity: 0; transition: opacity var(--med) var(--ease);
+}
+.zoom-2 .state-name { opacity: 1; }
+
+/* ── Geography layer ──────────────────────────────────────────────────── */
+.river {
+  fill: none; stroke: var(--map-river); stroke-width: 1; stroke-linecap: round;
+  stroke-linejoin: round; opacity: .95; vector-effect: non-scaling-stroke;
+}
+.river-shimmer {
+  fill: none; stroke: var(--map-river-lit); stroke-linecap: round; opacity: 0;
+  stroke-dasharray: 14 260; vector-effect: non-scaling-stroke;
+  animation: flow 15s linear infinite;
+}
+@keyframes flow { 0% { stroke-dashoffset: 0; opacity: 0; }
+                  12% { opacity: .85; } 88% { opacity: .85; }
+                  100% { stroke-dashoffset: -274; opacity: 0; } }
+
+.range { fill: none; stroke: var(--map-topo-2); stroke-width: 1; stroke-linecap: round;
+         opacity: .85; vector-effect: non-scaling-stroke; }
+/* The little engraved peak forms along each range. Heavier than before, but
+   still a printed illustration rather than a filled relief layer. */
+.hatch { fill: none; stroke: var(--map-topo); stroke-width: .85; opacity: .82;
+         vector-effect: non-scaling-stroke; }
+
+.annot, .state-name, .neighbour-label, .route-note, .dest-label {
+  paint-order: stroke fill;
+  stroke: var(--map-land);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.annot.sea, .neighbour-label { stroke: var(--map-sea); }
+.route-note { stroke-width: 3.5px; }
+
+.annot {
+  font-family: var(--display); fill: var(--map-geo); text-anchor: middle;
+  opacity: 1; pointer-events: none; font-style: italic;
+}
+.annot.sea { fill: var(--map-geo-sea); opacity: 1; font-style: normal; }
+
+/* ── Destinations ─────────────────────────────────────────────────────── */
+.dest { cursor: pointer; transition: opacity var(--med) var(--ease); }
+.dest-glyph {
+  fill: none; stroke: var(--map-marker-ink); stroke-width: 1.75; stroke-linecap: round;
+  stroke-linejoin: round; transition: stroke var(--fast) var(--ease);
+}
+/* A cream disc under each engraving, so the mark holds its own against
+   rivers, hachures and state borders passing beneath it. */
+.dest-disc {
+  fill: var(--map-marker-fill); stroke: var(--map-topo-2); stroke-width: 1.1;
+  transition: all var(--fast) var(--ease);
+}
+.dest-box { transition: transform var(--med) var(--ease); transform-origin: center; transform-box: fill-box; }
+.dest:hover .dest-box { transform: scale(1.24); }
+.dest:hover .dest-disc { fill: var(--vellum); stroke: var(--terracotta); stroke-width: 1.7; }
+.dest:hover .dest-glyph { stroke: var(--terracotta); }
+.dest.muted-lens { opacity: .22; pointer-events: none; }
+/* On the traveller's route: terracotta ring, so the journey's stops are
+   distinguishable from the surrounding destinations at a glance. */
+.dest.on-route .dest-disc { stroke: var(--route); stroke-width: 1.9; fill: #fdf6e6; }
+.dest.on-route .dest-glyph { stroke: var(--terracotta); }
+
+.dest-label {
+  font-family: var(--display); font-size: 8.5px; letter-spacing: .07em;
+  fill: var(--ink); text-anchor: middle; pointer-events: none;
+  opacity: 0; transition: opacity var(--med) var(--ease);
+}
+.dest-label-sc { font-family: var(--indic); font-size: 7.5px; fill: var(--ink-2); }
+.dest:hover .dest-label { opacity: 1; }
+.zoom-2 .dest-label,
+.zoom-3 .dest-label { opacity: 1; }
+.dest-label-bg { fill: var(--map-label-bg); stroke: none; opacity: 0; transition: opacity var(--med); }
+.dest:hover .dest-label-bg { opacity: 1; }
+.zoom-2 .dest-label-bg,
+.zoom-3 .dest-label-bg { opacity: 1; }
+
+/* Suppressed by de-collision: the mark stays on the sheet, the name waits for
+   a hover. Declared last so it beats the blanket zoom rules above. */
+.dest.no-label .dest-label,
+.dest.no-label .dest-label-bg { opacity: 0; }
+.dest.no-label:hover .dest-label,
+.dest.no-label:hover .dest-label-bg { opacity: 1; }
+
+/* ── Journey ──────────────────────────────────────────────────────────── */
+/* An ink route drawn onto the sheet by the traveller. Laid over a parchment
+   halo so it stays legible where it crosses rivers and hachures. */
+.route-ink {
+  fill: none; stroke: var(--route); stroke-width: 5; stroke-linecap: round;
+  stroke-linejoin: round; opacity: 1; vector-effect: non-scaling-stroke;
+  filter: url(#inkWobble);
+}
+.route-draw { stroke-dasharray: var(--len); stroke-dashoffset: var(--len);
+              animation: draw 2.4s var(--ease) forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.route-shadow { fill: none; stroke: var(--route-halo); stroke-width: 9;
+                stroke-linecap: round; stroke-linejoin: round;
+                vector-effect: non-scaling-stroke; }
+.route-node { fill: var(--vellum); stroke: var(--route-deep); stroke-width: 3.2;
+              vector-effect: non-scaling-stroke; }
+.route-node.done { fill: var(--route-deep); }
+.route-arrow { fill: var(--route-deep); opacity: .95; }
+.route-note {
+  font-family: var(--display); font-size: 7.5px; font-style: italic;
+  fill: var(--route-deep); opacity: .95; letter-spacing: .04em;
+}
+
+/* Risk geofences */
+.zone { fill: rgba(140,47,47,.10); stroke: rgba(140,47,47,.62); stroke-width: 1.1;
+        stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; }
+.zone.watch { fill: rgba(150,99,26,.10); stroke: rgba(150,99,26,.58); }
+
+/* Live position */
+.live-dot { fill: var(--terracotta); }
+.live-ring { fill: none; stroke: var(--terracotta); stroke-width: 1.8; opacity: .75;
+             animation: pulse 2.8s var(--ease) infinite; transform-origin: center;
+             transform-box: fill-box; }
+@keyframes pulse { 0% { r: 3; opacity: .7; } 100% { r: 16; opacity: 0; } }
+
+/* ── Compass, scale, cartouche ────────────────────────────────────────── */
+.rose-ring   { fill: none; stroke: var(--ink-2); stroke-width: 1.1; opacity: .9; }
+.rose-ring.thin { stroke-width: .7; opacity: .65; }
+.rose-tick   { stroke: var(--ink-2); stroke-width: .9; opacity: .78; }
+.rose-lotus  { fill: none; stroke: var(--brass); stroke-width: .9; opacity: .9; }
+.rose-major  { fill: var(--ink-2); stroke: var(--ink); stroke-width: .4; opacity: .9; }
+.rose-minor  { fill: rgba(164,128,43,.62); stroke: var(--brass); stroke-width: .4; }
+.rose-hub    { fill: var(--paper); stroke: var(--ink-2); stroke-width: .9; }
+.rose-letter { font-family: var(--display); font-size: 9px; fill: var(--ink-2);
+               text-anchor: middle; letter-spacing: .06em; }
+
+.compass {
+  position: absolute; right: 30px; bottom: 30px; z-index: 6;
+  width: 108px; height: 108px; pointer-events: none;
+  transition: transform 1.4s var(--ease); opacity: .9;
+}
+
+.scalebar { position: absolute; left: 30px; bottom: 30px; z-index: 6; width: 172px; }
+.scalebar .label { margin-bottom: 5px; }
+.scalebar svg { display: block; }
+.scalebar .bar-a { fill: var(--ink-2); }
+.scalebar .bar-b { fill: var(--paper); stroke: var(--ink-2); stroke-width: .8; }
+.scalebar .bar-t { font-family: var(--mono); font-size: 8px; fill: var(--ink-3); text-anchor: middle; }
+
+/* the hovered-state cartouche */
+.cartouche {
+  position: absolute; left: 30px; top: 30px; z-index: 7; width: 246px;
+  padding: 15px 17px 14px; pointer-events: none;
+  opacity: 0; transform: translateY(-6px);
+  transition: opacity var(--med) var(--ease), transform var(--med) var(--ease);
+}
+.cartouche.on { opacity: 1; transform: none; }
+.cartouche.pinned { top: 74px; }
+.cartouche h2 { font-size: 19px; letter-spacing: .05em; text-transform: uppercase; }
+.cartouche .script { font-size: 15px; margin-top: 1px; }
+.cartouche .char { font-size: 11.5px; color: var(--ink-2); font-style: italic;
+                   font-family: var(--display); margin-top: 7px; }
+.cartouche .cnt { margin-top: 9px; display: flex; gap: 14px; }
+.cartouche .cnt b { font-family: var(--display); font-size: 17px; font-weight: 600; display: block; }
+
+.atlas-title { position: absolute; left: 50%; top: 26px; transform: translateX(-50%);
+               z-index: 6; text-align: center; pointer-events: none; }
+.atlas-title h1 { font-size: 15px; letter-spacing: .48em; text-transform: uppercase;
+                  color: var(--ink-2); text-indent: .48em; }
+.atlas-title p { margin: 5px 0 0; font-family: var(--display); font-style: italic;
+                 font-size: 11.5px; color: var(--ink-4); letter-spacing: .06em; }
+
+/* map controls */
+.atlas-tools { position: absolute; right: 30px; top: 30px; z-index: 7; width: 210px;
+               display: flex; flex-direction: column; gap: 10px; }
+.tool-block { padding: 12px 13px; }
+.tool-block .label { display: block; margin-bottom: 9px; }
+.lens-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+.lens-grid .chip { font-size: 10px; padding: 4px 9px; }
+.layer-row { display: flex; align-items: center; justify-content: space-between;
+             padding: 4px 0; font-size: 11.5px; color: var(--ink-2); cursor: pointer; }
+.layer-row:hover { color: var(--ink); }
+.switch { width: 26px; height: 14px; border-radius: 8px; background: var(--paper-sunk);
+          border: 1px solid var(--hair); position: relative; transition: all var(--fast); }
+.switch::after { content:''; position: absolute; width: 10px; height: 10px; border-radius: 50%;
+                 background: var(--ink-4); top: 1px; left: 1px; transition: all var(--fast) var(--ease); }
+.layer-row[aria-pressed="true"] .switch { background: var(--forest); border-color: var(--forest); }
+.layer-row[aria-pressed="true"] .switch::after { left: 13px; background: var(--vellum); }
+
+.breadcrumb { position: absolute; left: 30px; top: 30px; z-index: 8;
+              display: flex; align-items: center; gap: 8px; }
+.breadcrumb .btn { backdrop-filter: blur(3px); }
+
+/* destination card */
+.destcard { position: absolute; z-index: 9; width: 288px; padding: 0; overflow: hidden;
+            animation: fadeUp var(--med) var(--ease) both; }
+.destcard .top { padding: 17px 18px 14px; position: relative; }
+.destcard .plate { height: 92px; background: linear-gradient(160deg, #e2cfa6, #cdb98c);
+                   border-bottom: 1px solid var(--hair); position: relative; overflow: hidden; }
+.destcard .plate svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.destcard h2 { font-size: 20px; letter-spacing: .06em; text-transform: uppercase; }
+.destcard .rows { border-top: 1px solid var(--hair); }
+.destcard .row { display: flex; justify-content: space-between; align-items: center;
+                 padding: 8px 18px; border-bottom: 1px solid rgba(198,179,147,.42); font-size: 12px; }
+.destcard .row:last-child { border-bottom: 0; }
+.destcard .acts { padding: 13px 18px 16px; display: flex; gap: 8px; }
+.stars { color: var(--brass); letter-spacing: .12em; font-size: 11px; }
