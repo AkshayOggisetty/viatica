@@ -2,7 +2,7 @@
 
 Team OggyAndTheCockroaches
 Theme: Tourism · Category: Software
-Prototype developer: **Ishita Choudhary**
+Prototype developer: **Sai Akshay Oggisetty**
 
 An interactive prototype of *Viatica* — an integrated smart tourism platform where
 itinerary, transport, tickets, budget, group and safety live in **one live trip record**.
@@ -142,9 +142,9 @@ names still appear on hover.
 
 ## Credits
 
-**Prototype developed by Ishita Choudhary.**
+**Prototype developed by Sai Akshay Oggisetty.**
 The interactive prototype in this repository — the atlas, the ten modules, the solver,
-the Trip Pass and the demo narrative — was built by Ishita Choudhary.
+the Trip Pass and the demo narrative — was built by Sai Akshay Oggisetty.
 
 Team S2P10 · *OggyAndTheCockroaches* · Smart India Hackathon 2026
 PS ID IHSIH019 · YUKTI ID IR2026-1042884 · Theme: Tourism · Category: Software
